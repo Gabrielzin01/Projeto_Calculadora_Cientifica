@@ -22,14 +22,35 @@ class Calculadora {
 
     // processar todas as operações da calculadora
     processarOperacao(operacao) {
+        // verifique se o atual está vazio
+        if(this.atualOperacaoTexto.innerText === "") {
+            // operação de alteração
+            if(this.PrevisaoDeOperaçaoTexto.innerText !== "") {
+                this.operaçãoDeAlteração(operacao)
+            }
+            return;
+        }
+
         // obter o valor atual e o anterior
         let operacaoValor
-        const previsao = +this.PrevisaoDeOperaçaoTexto.innerText
+        const previsao = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
         const atual = +this.atualOperacaoTexto.innerText
 
         switch(operacao) {
             case "+":
                 operacaoValor = previsao + atual
+                this.atulizarVisor(operacaoValor, operacao, atual, previsao)
+                break;
+            case "-":
+                operacaoValor = previsao - atual
+                this.atulizarVisor(operacaoValor, operacao, atual, previsao)
+                break;
+            case "/":
+                operacaoValor = previsao / atual
+                this.atulizarVisor(operacaoValor, operacao, atual, previsao)
+                break;
+            case "*":
+                operacaoValor = previsao * atual
                 this.atulizarVisor(operacaoValor, operacao, atual, previsao)
                 break;
             default:
@@ -52,8 +73,24 @@ class Calculadora {
             if(previsao === 0 ) {
                 operacaoValor = atual
             }
+
+            // adicionar o valor atual ao anterior
+            this.PrevisaoDeOperaçaoTexto.innerText = `${operacaoValor} ${operacao}`
+            this.atualOperacaoTexto.innerText = "";
         }
     }
+
+    // alterar operação matemática
+    operaçãoDeAlteração(operacao) {
+        const operaçãoMatemática = ["*", "/","+", "-"]
+
+        if(!operaçãoMatemática.includes(operacao)) {
+            return
+        }
+
+        this.PrevisaoDeOperaçaoTexto.innerText = this.PrevisaoDeOperaçaoTexto.innerText.slice(0, -1) + operacao
+    }
+
 }
 
 const calc = new Calculadora(PrevisaoDeOperaçaoTexto, atualOperacaoTexto)
