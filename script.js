@@ -23,7 +23,7 @@ class Calculadora {
     // processar todas as operações da calculadora
     processarOperacao(operacao) {
         // verifique se o atual está vazio
-        if(this.atualOperacaoTexto.innerText === "") {
+        if(this.atualOperacaoTexto.innerText === "" & operacao !== "C") {
             // operação de alteração
             if(this.PrevisaoDeOperaçaoTexto.innerText !== "") {
                 this.operaçãoDeAlteração(operacao)
@@ -52,6 +52,18 @@ class Calculadora {
             case "*":
                 operacaoValor = previsao * atual
                 this.atulizarVisor(operacaoValor, operacao, atual, previsao)
+                break;
+            case "DEL":
+                this.processorDeletarOperador()
+                break;
+            case "CE":
+                this.processoLimparAtualOperacao()
+                break;
+            case "C":
+                this.processoLimparOperacao()
+                break;
+             case "=":
+                this.processoIgualOperacao()
                 break;
             default:
             return;
@@ -89,6 +101,26 @@ class Calculadora {
         }
 
         this.PrevisaoDeOperaçaoTexto.innerText = this.PrevisaoDeOperaçaoTexto.innerText.slice(0, -1) + operacao
+    }
+    // exclua o último dígito
+    processorDeletarOperador() {
+        this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.slice(0, -1)
+    }
+    // limpar atual operaçao
+    processoLimparAtualOperacao() {
+        this.atualOperacaoTexto.innerText = ""
+
+    }
+    // limpar toda operaçao
+    processoLimparOperacao() {
+        this.atualOperacaoTexto.innerText = ""
+        this.PrevisaoDeOperaçaoTexto.innerText = ""
+    }
+    // processar uma operação
+    processoIgualOperacao() {
+        const operacao = PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+
+        this.processarOperacao(operacao)
     }
 
 }
