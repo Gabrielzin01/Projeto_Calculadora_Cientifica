@@ -1,6 +1,7 @@
 const NumberClass = document.querySelectorAll("#basico button")
 const PrevisaoDeOperaçaoTexto = document.querySelector("#previsao_de_operaçao")
 const atualOperacaoTexto = document.querySelector("#atualOperaçao")
+const operacoesCientificas = document.querySelectorAll("#cientifica button")
 
 
 class Calculadora {
@@ -127,6 +128,33 @@ class Calculadora {
 
 const calc = new Calculadora(PrevisaoDeOperaçaoTexto, atualOperacaoTexto)
 
+class Cientifica extends Calculadora {
+    constructor(PrevisaoDeOperaçaoTexto,atualOperacaoTexto) {
+        super(PrevisaoDeOperaçaoTexto,atualOperacaoTexto)
+
+
+    }
+
+    porcentagemOperacao() {
+        if(this.atualOperacaoTexto.innerText === "") 
+            return
+        const valorAtual = +this.atualOperacaoTexto.innerText
+
+        if(this.PrevisaoDeOperaçaoTexto.innerText !== "") {
+            const valorAnterior = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
+
+            const resultadoPorcentagem = (valorAnterior * valorAtual) / 100
+
+            this.atualOperacaoTexto.innerText = resultadoPorcentagem
+        } else {
+            this.atualOperacaoTexto.innerText = valorAtual / 100
+        }
+    }
+    
+}
+
+const calc_cientifica = new Cientifica(PrevisaoDeOperaçaoTexto, atualOperacaoTexto)
+
 NumberClass.forEach((buttons) => {
     buttons.addEventListener("click", (e) => {
         const value = e.target.innerText
@@ -137,5 +165,16 @@ NumberClass.forEach((buttons) => {
             calc.processarOperacao(value)
         }
 
+    })
+})
+
+operacoesCientificas.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+        const value = e.target.innerText
+        switch(value){
+            case "%":
+                calc_cientifica.porcentagemOperacao()
+                break;
+        }
     })
 })
