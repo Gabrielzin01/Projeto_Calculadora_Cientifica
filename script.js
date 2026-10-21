@@ -135,22 +135,50 @@ class Cientifica extends Calculadora {
 
     }
 
-    porcentagemOperacao() {
-        if(this.atualOperacaoTexto.innerText === "") 
+ porcentagemOperacao() {
+        if (this.atualOperacaoTexto.innerText === "" || this.atualOperacaoTexto.innerText.includes("%")) {
             return
-        const valorAtual = +this.atualOperacaoTexto.innerText
-
-        if(this.PrevisaoDeOperaçaoTexto.innerText !== "") {
-            const valorAnterior = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
-
-            const resultadoPorcentagem = (valorAnterior * valorAtual) / 100
-
-            this.atualOperacaoTexto.innerText = resultadoPorcentagem
-        } else {
-            this.atualOperacaoTexto.innerText = valorAtual / 100
         }
+        this.atualOperacaoTexto.innerText += "%"
     }
-    
+
+    processoIgualOperacao() {
+        let atualTexto = this.atualOperacaoTexto.innerText
+
+        
+        if (atualTexto.includes("%")) {
+            const numeroAtual = +atualTexto.replace("%", "")
+            
+            if (this.PrevisaoDeOperaçaoTexto.innerText !== "") {
+                const previsao = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
+                const operador = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+
+                
+                const valorPorcentagem = (previsao * numeroAtual) / 100
+
+                if (operador === "+") {
+                    this.atualOperacaoTexto.innerText = previsao + valorPorcentagem
+                } else if (operador === "-") {
+                    this.atualOperacaoTexto.innerText = previsao - valorPorcentagem
+                } else if (operador === "*" || operador === "/") {
+                    this.atualOperacaoTexto.innerText = valorPorcentagem
+                }
+
+                this.PrevisaoDeOperaçaoTexto.innerText = ""
+                return;
+            } else {
+                
+                this.atualOperacaoTexto.innerText = numeroAtual / 100
+                return;
+            }
+        }
+
+        
+        super.processoIgualOperacao()
+    }
+
+
+   
 }
 
 const calc_cientifica = new Cientifica(PrevisaoDeOperaçaoTexto, atualOperacaoTexto)
@@ -160,9 +188,9 @@ NumberClass.forEach((buttons) => {
         const value = e.target.innerText
 
         if (+value >= 0 || value === ".") {
-            calc.AdcionarDigito(value)
+            calc_cientifica.AdcionarDigito(value)
         } else {
-            calc.processarOperacao(value)
+            calc_cientifica.processarOperacao(value)
         }
 
     })
