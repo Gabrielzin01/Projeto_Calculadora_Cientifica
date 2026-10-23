@@ -23,13 +23,27 @@ class Calculadora {
 
     // processar todas as operações da calculadora
     processarOperacao(operacao) {
+
+        if (operacao === "=") {
+            this.processoIgualOperacao()
+            return
+        }
+
         // verifique se o atual está vazio
         if(this.atualOperacaoTexto.innerText === "" & operacao !== "C") {
             // operação de alteração
             if(this.PrevisaoDeOperaçaoTexto.innerText !== "") {
-                this.operaçãoDeAlteração(operacao)
+                this.operaçãoDeAlteração(operacao === "x!" ? "!" : operacao)
             }
             return;
+        }
+
+       if (
+            this.atualOperacaoTexto.innerText.includes("!") &&
+            ["+", "-", "*", "/"].includes(operacao)
+        ) {
+            const atualSemFatorial = this.atualOperacaoTexto.innerText.replace("!", "")
+            this.atualOperacaoTexto.innerText = atualSemFatorial
         }
 
         // obter o valor atual e o anterior
@@ -66,6 +80,13 @@ class Calculadora {
              case "=":
                 this.processoIgualOperacao()
                 break;
+            case "x!":
+                if (this.atualOperacaoTexto.innerText === "") {
+                    this.operaçãoDeAlteração("!")
+                } else {
+                    this.adicionarSimbolo("!")
+                }
+                break;
             default:
             return;
             
@@ -95,13 +116,20 @@ class Calculadora {
 
     // alterar operação matemática
     operaçãoDeAlteração(operacao) {
-        const operaçãoMatemática = ["*", "/","+", "-"]
+        const operaçõesPermitidas = ["*", "/", "+", "-", "!"]
 
-        if(!operaçãoMatemática.includes(operacao)) {
-            return
+        if (!operaçõesPermitidas.includes(operacao)) return
+
+        const previsaoAtual = this.PrevisaoDeOperaçaoTexto.innerText
+        const ultimoCaractere = previsaoAtual.slice(-1)
+
+        if (["*", "/", "+", "-", "!"].includes(ultimoCaractere)) {
+            this.PrevisaoDeOperaçaoTexto.innerText =
+                previsaoAtual.slice(0, -1) + operacao
+        } else {
+            this.PrevisaoDeOperaçaoTexto.innerText =
+                `${previsaoAtual} ${operacao}`
         }
-
-        this.PrevisaoDeOperaçaoTexto.innerText = this.PrevisaoDeOperaçaoTexto.innerText.slice(0, -1) + operacao
     }
     // exclua o último dígito
     processorDeletarOperador() {
@@ -142,42 +170,105 @@ class Cientifica extends Calculadora {
         this.atualOperacaoTexto.innerText += "%"
     }
 
-    processoIgualOperacao() {
-        let atualTexto = this.atualOperacaoTexto.innerText
+    
+processoIgualOperacao() {
+    let atualTexto = this.atualOperacaoTexto.innerText
+    const previsaoTexto = this.PrevisaoDeOperaçaoTexto.innerText.trim()
 
-        
-        if (atualTexto.includes("%")) {
-            const numeroAtual = +atualTexto.replace("%", "")
-            
-            if (this.PrevisaoDeOperaçaoTexto.innerText !== "") {
-                const previsao = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
-                const operador = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
 
-                
-                const valorPorcentagem = (previsao * numeroAtual) / 100
-
-                if (operador === "+") {
-                    this.atualOperacaoTexto.innerText = previsao + valorPorcentagem
-                } else if (operador === "-") {
-                    this.atualOperacaoTexto.innerText = previsao - valorPorcentagem
-                } else if (operador === "*" || operador === "/") {
-                    this.atualOperacaoTexto.innerText = valorPorcentagem
-                }
-
-                this.PrevisaoDeOperaçaoTexto.innerText = ""
-                return;
-            } else {
-                
-                this.atualOperacaoTexto.innerText = numeroAtual / 100
-                return;
-            }
-        }
-
-        
-        super.processoIgualOperacao()
+    // Fatorial no visor atual: exemplo 6!
+    if (atualTexto.includes("!")) {
+        this.operacaoFtorial()
+        return
     }
 
+    // Fatorial na previsão: exemplo 720 !
+    if (previsaoTexto.endsWith("!")) {
+        const numero = Number(previsaoTexto.replace("!", "").trim())
+        let resultado = 1
 
+        for (let i = 1; i <= numero; i++) {
+            resultado *= i
+        }
+
+        this.PrevisaoDeOperaçaoTexto.innerText = String(resultado)
+        this.atualOperacaoTexto.innerText = ""
+        return
+    }
+
+    // Porcentagem
+    if (atualTexto.includes("%")) {
+        const numeroAtual = +atualTexto.replace("%", "")
+
+        if (this.PrevisaoDeOperaçaoTexto.innerText !== "") {
+            const previsao = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
+            const operador = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+            const valorPorcentagem = (previsao * numeroAtual) / 100
+
+            if (operador === "+") {
+                this.atualOperacaoTexto.innerText = previsao + valorPorcentagem
+            } else if (operador === "-") {
+                this.atualOperacaoTexto.innerText = previsao - valorPorcentagem
+            } else if (operador === "*" || operador === "/") {
+                this.atualOperacaoTexto.innerText = valorPorcentagem
+            }
+
+            this.PrevisaoDeOperaçaoTexto.innerText = ""
+            return
+        } else {
+            this.atualOperacaoTexto.innerText = numeroAtual / 100
+            return
+        }
+    }
+
+    super.processoIgualOperacao()
+}
+
+
+    operacaoFtorial() {
+
+        const atualOperacaoTexto = +this.atualOperacaoTexto.innerText.replace("!", "")
+        let n = 1
+
+        for(let i = 1; i <= atualOperacaoTexto; i++) {
+            n *= i
+        }
+
+        this.PrevisaoDeOperaçaoTexto.innerText = n
+        this.atualOperacaoTexto.innerText = ""
+    }
+
+   adicionarSimbolo(simbolo) {
+    const simbolosPermitidos = ["%", "!"]
+
+    if (!simbolosPermitidos.includes(simbolo)) {
+        return
+    }
+
+    // Se o visor atual estiver vazio, verificar a previsão
+    if (
+        this.atualOperacaoTexto.innerText === "" &&
+        simbolo === "!" &&
+        this.PrevisaoDeOperaçaoTexto.innerText !== ""
+    ) {
+        const previsao = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")
+
+        // Recuperar o número e cancelar o operador
+        this.atualOperacaoTexto.innerText = previsao[0]
+        this.PrevisaoDeOperaçaoTexto.innerText = ""
+
+    }
+
+    if (this.atualOperacaoTexto.innerText === "") {
+        return
+    }
+
+    if (this.atualOperacaoTexto.innerText.includes(simbolo)) {
+        return
+    }
+
+    this.atualOperacaoTexto.innerText += simbolo
+}
    
 }
 
@@ -202,6 +293,9 @@ operacoesCientificas.forEach((btn) => {
         switch(value){
             case "%":
                 calc_cientifica.porcentagemOperacao()
+                break;
+            case "x!":
+                calc_cientifica.processarOperacao(value)
                 break;
         }
     })
