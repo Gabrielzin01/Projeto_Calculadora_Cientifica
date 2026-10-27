@@ -49,7 +49,7 @@ class Calculadora {
         // obter o valor atual e o anterior
         let operacaoValor
         const previsao = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
-        const atual = +this.atualOperacaoTexto.innerText
+        const atual = +this.atualOperacaoTexto.innerText.replace("%","")
 
         switch(operacao) {
             case "+":
@@ -106,26 +106,29 @@ class Calculadora {
             // Verifique se o valor é zero; se for, basta adicionar o valor atual.
             if(previsao === 0 ) {
                 operacaoValor = atual
+                
             }
+            const n = +operacaoValor.toFixed(10)
 
             // adicionar o valor atual ao anterior
-            this.PrevisaoDeOperaçaoTexto.innerText = `${operacaoValor} ${operacao}`
+            this.PrevisaoDeOperaçaoTexto.innerText = `${n} ${operacao}`
             this.atualOperacaoTexto.innerText = "";
         }
     }
 
     // alterar operação matemática
     operaçãoDeAlteração(operacao) {
-        const operaçõesPermitidas = ["*", "/", "+", "-", "!"]
+        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%"]
 
         if (!operaçõesPermitidas.includes(operacao)) return
 
         const previsaoAtual = this.PrevisaoDeOperaçaoTexto.innerText
-        const ultimoCaractere = previsaoAtual.slice(-1)
+        const previsaoSemEspacos = previsaoAtual.trim()
+        const ultimoCaractere = previsaoAtual.trim().slice(-1)
 
-        if (["*", "/", "+", "-", "!"].includes(ultimoCaractere)) {
+        if (["*", "/", "+", "-", "!","%"].includes(ultimoCaractere)) {
             this.PrevisaoDeOperaçaoTexto.innerText =
-                previsaoAtual.slice(0, -1) + operacao
+                previsaoSemEspacos.slice(0, -1) + operacao
         } else {
             this.PrevisaoDeOperaçaoTexto.innerText =
                 `${previsaoAtual} ${operacao}`
@@ -174,17 +177,29 @@ class Cientifica extends Calculadora {
 processoIgualOperacao() {
     let atualTexto = this.atualOperacaoTexto.innerText
     const previsaoTexto = this.PrevisaoDeOperaçaoTexto.innerText.trim()
+    const numeroPrevisao = +previsaoTexto.replace("%", "")
+
+    if (previsaoTexto.endsWith("%") && atualTexto === "") {
+        this.PrevisaoDeOperaçaoTexto.innerText = numeroPrevisao / 100
+        return
+
+}
 
 
     // Fatorial no visor atual: exemplo 6!
     if (atualTexto.includes("!")) {
-        this.operacaoFtorial()
+        this.operacaoFatorial()
         return
     }
 
     // Fatorial na previsão: exemplo 720 !
     if (previsaoTexto.endsWith("!")) {
         const numero = Number(previsaoTexto.replace("!", "").trim())
+        if (numero > 170) {
+            this.PrevisaoDeOperaçaoTexto.innerText = "Infinity"
+            this.atualOperacaoTexto.innerText = ""
+            return
+    }
         let resultado = 1
 
         for (let i = 1; i <= numero; i++) {
@@ -204,16 +219,20 @@ processoIgualOperacao() {
             const previsao = +this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[0]
             const operador = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
             const valorPorcentagem = (previsao * numeroAtual) / 100
+            let resultado
 
             if (operador === "+") {
-                this.atualOperacaoTexto.innerText = previsao + valorPorcentagem
+                resultado = previsao + valorPorcentagem
             } else if (operador === "-") {
-                this.atualOperacaoTexto.innerText = previsao - valorPorcentagem
-            } else if (operador === "*" || operador === "/") {
-                this.atualOperacaoTexto.innerText = valorPorcentagem
+                resultado = previsao - valorPorcentagem
+            } else if (operador === "*" ) {
+                resultado = valorPorcentagem
+            } else if (operador === "/") {
+                resultado = previsao / (numeroAtual / 100)
             }
 
-            this.PrevisaoDeOperaçaoTexto.innerText = ""
+            this.PrevisaoDeOperaçaoTexto.innerText = resultado
+            this.atualOperacaoTexto.innerText = ""
             return
         } else {
             this.atualOperacaoTexto.innerText = numeroAtual / 100
@@ -225,9 +244,14 @@ processoIgualOperacao() {
 }
 
 
-    operacaoFtorial() {
+    operacaoFatorial() {
 
         const atualOperacaoTexto = +this.atualOperacaoTexto.innerText.replace("!", "")
+        if (atualOperacaoTexto > 170) {
+            this.PrevisaoDeOperaçaoTexto.innerText = "Infinity"
+            this.atualOperacaoTexto.innerText = ""
+            return
+}
         let n = 1
 
         for(let i = 1; i <= atualOperacaoTexto; i++) {
@@ -292,7 +316,11 @@ operacoesCientificas.forEach((btn) => {
         const value = e.target.innerText
         switch(value){
             case "%":
-                calc_cientifica.porcentagemOperacao()
+                if(calc_cientifica.atualOperacaoTexto.innerText === "") {
+                    calc_cientifica.operaçãoDeAlteração("%") 
+                } else {
+                    calc_cientifica.porcentagemOperacao()
+                }
                 break;
             case "x!":
                 calc_cientifica.processarOperacao(value)
