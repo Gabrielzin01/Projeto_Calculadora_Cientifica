@@ -38,12 +38,33 @@ class Calculadora {
             return;
         }
 
-       if (
-            this.atualOperacaoTexto.innerText.includes("!") &&
+       if ( this.atualOperacaoTexto.innerText.includes("!") &&
             ["+", "-", "*", "/"].includes(operacao)
         ) {
             const atualSemFatorial = this.atualOperacaoTexto.innerText.replace("!", "")
             this.atualOperacaoTexto.innerText = atualSemFatorial
+        }
+
+        if (
+            this.atualOperacaoTexto.innerText === "√" &&
+            ["+", "-", "*", "/"].includes(operacao)
+        ) {
+            return
+        }
+
+        if (
+            this.atualOperacaoTexto.innerText.startsWith("√") &&
+            ["+", "-", "*", "/"].includes(operacao)
+        ) {
+            this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("√", "")
+        }
+
+        if (this.atualOperacaoTexto.innerText.endsWith("π")) {
+            const textoAtual = this.atualOperacaoTexto.innerText
+            const numero = textoAtual.replace("π", "")
+            const multiplicador = numero === "" ? 1 : Number(numero)
+
+            this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
         }
 
         // obter o valor atual e o anterior
@@ -118,7 +139,7 @@ class Calculadora {
 
     // alterar operação matemática
     operaçãoDeAlteração(operacao) {
-        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%"]
+        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%","√"]
 
         if (!operaçõesPermitidas.includes(operacao)) return
 
@@ -126,7 +147,7 @@ class Calculadora {
         const previsaoSemEspacos = previsaoAtual.trim()
         const ultimoCaractere = previsaoAtual.trim().slice(-1)
 
-        if (["*", "/", "+", "-", "!","%"].includes(ultimoCaractere)) {
+        if (["*", "/", "+", "-", "!","%","√"].includes(ultimoCaractere)) {
             this.PrevisaoDeOperaçaoTexto.innerText =
                 previsaoSemEspacos.slice(0, -1) + operacao
         } else {
@@ -178,6 +199,36 @@ processoIgualOperacao() {
     let atualTexto = this.atualOperacaoTexto.innerText
     const previsaoTexto = this.PrevisaoDeOperaçaoTexto.innerText.trim()
     const numeroPrevisao = +previsaoTexto.replace("%", "")
+
+    if (atualTexto.endsWith("π")) {
+    const numero = atualTexto.replace("π", "")
+    const multiplicador = numero === "" ? 1 : Number(numero)
+
+    this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
+    atualTexto = this.atualOperacaoTexto.innerText
+    }
+
+    if (atualTexto === "π") {
+    this.atualOperacaoTexto.innerText = Math.PI
+    atualTexto = this.atualOperacaoTexto.innerText
+    }
+
+    if(atualTexto.startsWith("√")){
+        if(atualTexto === "√"){
+            return
+        }
+        let numeroAtual = +atualTexto.replace("√", "")
+        const resultado = Math.sqrt(numeroAtual)
+
+        if(this.PrevisaoDeOperaçaoTexto.innerText === "") {
+            this.PrevisaoDeOperaçaoTexto.innerText = resultado
+            this.atualOperacaoTexto.innerText = ""
+            return
+        }
+        this.atualOperacaoTexto.innerText = resultado
+        this.processoIgualOperacao()
+        
+    }
 
     if (previsaoTexto.endsWith("%") && atualTexto === "") {
         this.PrevisaoDeOperaçaoTexto.innerText = numeroPrevisao / 100
@@ -316,7 +367,7 @@ operacoesCientificas.forEach((btn) => {
         const value = e.target.innerText
         switch(value){
             case "%":
-                if(calc_cientifica.atualOperacaoTexto.innerText === "") {
+                if(calc_cientifica.atualOperacaoTexto.innerText === "" && calc_cientifica.PrevisaoDeOperaçaoTexto.innerText !== "") {
                     calc_cientifica.operaçãoDeAlteração("%") 
                 } else {
                     calc_cientifica.porcentagemOperacao()
@@ -324,6 +375,12 @@ operacoesCientificas.forEach((btn) => {
                 break;
             case "x!":
                 calc_cientifica.processarOperacao(value)
+                break;
+            case "π":
+                calc_cientifica.atualOperacaoTexto.innerText += "π"
+                break;
+            case "√":
+                calc_cientifica.atualOperacaoTexto.innerText = "√"
                 break;
         }
     })
