@@ -46,9 +46,7 @@ class Calculadora {
         }
 
         if (
-            this.atualOperacaoTexto.innerText === "√" &&
-            ["+", "-", "*", "/"].includes(operacao)
-        ) {
+            this.atualOperacaoTexto.innerText === "√" && ["+", "-", "*", "/"].includes(operacao)) {
             return
         }
 
@@ -65,6 +63,16 @@ class Calculadora {
             const multiplicador = numero === "" ? 1 : Number(numero)
 
             this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
+        }
+
+        if(this.atualOperacaoTexto.innerText === "cos" && ["+", "-", "*", "/"].includes(operacao)) {
+                return
+            }
+
+        if(this.atualOperacaoTexto.innerText.startsWith("cos") && ["+", "-", "*", "/"].includes(operacao)) {
+            this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("cos", "")
+            
+            
         }
 
         // obter o valor atual e o anterior
@@ -112,7 +120,7 @@ class Calculadora {
             return;
             
         }
-    }
+    }   
     // alterar os valores da tela da calculadora
     atulizarVisor(
         operacaoValor = null, 
@@ -139,7 +147,7 @@ class Calculadora {
 
     // alterar operação matemática
     operaçãoDeAlteração(operacao) {
-        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%","√"]
+        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%","√","cos"]
 
         if (!operaçõesPermitidas.includes(operacao)) return
 
@@ -147,7 +155,7 @@ class Calculadora {
         const previsaoSemEspacos = previsaoAtual.trim()
         const ultimoCaractere = previsaoAtual.trim().slice(-1)
 
-        if (["*", "/", "+", "-", "!","%","√"].includes(ultimoCaractere)) {
+        if (["*", "/", "+", "-", "!","%","√","cos"].includes(ultimoCaractere)) {
             this.PrevisaoDeOperaçaoTexto.innerText =
                 previsaoSemEspacos.slice(0, -1) + operacao
         } else {
@@ -199,8 +207,28 @@ processoIgualOperacao() {
     let atualTexto = this.atualOperacaoTexto.innerText
     const previsaoTexto = this.PrevisaoDeOperaçaoTexto.innerText.trim()
     const numeroPrevisao = +previsaoTexto.replace("%", "")
+   
 
-    if (atualTexto.endsWith("π")) {
+    if(atualTexto.startsWith("cos")) {
+        if(atualTexto === "cos") {
+            return
+        }
+        let cosseno = +atualTexto.replace("cos", "")
+        let x = Math.cos(cosseno * Math.PI / 180)
+
+        if(this.PrevisaoDeOperaçaoTexto.innerText === "") {
+            this.PrevisaoDeOperaçaoTexto.innerText = x.toFixed(10)
+            this.atualOperacaoTexto.innerText = ""
+            return
+        }
+        this.atualOperacaoTexto.innerText = x.toFixed(10)
+        const resultado = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+        this.processarOperacao(resultado)
+        return
+    }
+
+
+    if (atualTexto.startsWith("π")) {
     const numero = atualTexto.replace("π", "")
     const multiplicador = numero === "" ? 1 : Number(numero)
 
@@ -314,7 +342,7 @@ processoIgualOperacao() {
     }
 
    adicionarSimbolo(simbolo) {
-    const simbolosPermitidos = ["%", "!"]
+    const simbolosPermitidos = ["%", "!","cos"]
 
     if (!simbolosPermitidos.includes(simbolo)) {
         return
@@ -381,6 +409,9 @@ operacoesCientificas.forEach((btn) => {
                 break;
             case "√":
                 calc_cientifica.atualOperacaoTexto.innerText = "√"
+                break;
+            case "cos":
+                calc_cientifica.atualOperacaoTexto.innerText = "cos"
                 break;
         }
     })
