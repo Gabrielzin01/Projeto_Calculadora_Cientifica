@@ -28,6 +28,17 @@ class Calculadora {
             this.processoIgualOperacao()
             return
         }
+        // bota o sinal de menos na frente do numero
+        if(this.atualOperacaoTexto.innerText === "" & operacao === "-") {
+            this.atualOperacaoTexto.innerText = "-"
+            return
+            
+        }
+        // deixar o sinal de "-" na frente dessas operacoes
+        if(operacao === "-" && ["cos", "sin", "tan", "√", "ln"].includes(this.atualOperacaoTexto.innerText)) {
+            this.atualOperacaoTexto.innerText += "-"
+            return
+        }
 
         // verifique se o atual está vazio
         if(this.atualOperacaoTexto.innerText === "" & operacao !== "C") {
@@ -38,25 +49,26 @@ class Calculadora {
             return;
         }
 
+        //deixa trocar opercaoes fatorial
        if ( this.atualOperacaoTexto.innerText.includes("!") &&
             ["+", "-", "*", "/"].includes(operacao)
         ) {
             const atualSemFatorial = this.atualOperacaoTexto.innerText.replace("!", "")
             this.atualOperacaoTexto.innerText = atualSemFatorial
         }
-
+        //deixa trocar opercaoes raiz quadrada
         if (
             this.atualOperacaoTexto.innerText === "√" && ["+", "-", "*", "/"].includes(operacao)) {
             return
         }
-
+        
         if (
             this.atualOperacaoTexto.innerText.startsWith("√") &&
             ["+", "-", "*", "/"].includes(operacao)
         ) {
             this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("√", "")
         }
-
+        //deixa trocar opercaoes Pi
         if (this.atualOperacaoTexto.innerText.endsWith("π")) {
             const textoAtual = this.atualOperacaoTexto.innerText
             const numero = textoAtual.replace("π", "")
@@ -64,13 +76,46 @@ class Calculadora {
 
             this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
         }
-
+        //deixa trocar opercaoes Cosseno
         if(this.atualOperacaoTexto.innerText === "cos" && ["+", "-", "*", "/"].includes(operacao)) {
                 return
             }
 
         if(this.atualOperacaoTexto.innerText.startsWith("cos") && ["+", "-", "*", "/"].includes(operacao)) {
             this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("cos", "")
+            
+            
+        }
+        //deixa trocar opercaoes seno
+        if(this.atualOperacaoTexto.innerText === "sin" && ["+", "-", "*", "/"].includes(operacao)) {
+                return
+            }
+
+        if(this.atualOperacaoTexto.innerText.startsWith("sin") && ["+", "-", "*", "/"].includes(operacao)) {
+            this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("sin", "")
+            
+            
+        }
+
+
+        //deixa trocar opercaoes tangente
+        if(this.atualOperacaoTexto.innerText === "tan" && ["+", "-", "*", "/"].includes(operacao)) {
+                return
+            }
+
+        if(this.atualOperacaoTexto.innerText.startsWith("tan") && ["+", "-", "*", "/"].includes(operacao)) {
+            this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("tan", "")
+            
+            
+        }
+
+        //deixa trocar opercaoes Logaritimo Natural
+         if(this.atualOperacaoTexto.innerText === "ln" && ["+", "-", "*", "/"].includes(operacao)) {
+                return
+            }
+
+        if(this.atualOperacaoTexto.innerText.startsWith("ln") && ["+", "-", "*", "/"].includes(operacao)) {
+            this.atualOperacaoTexto.innerText = this.atualOperacaoTexto.innerText.replace("ln", "")
             
             
         }
@@ -147,7 +192,7 @@ class Calculadora {
 
     // alterar operação matemática
     operaçãoDeAlteração(operacao) {
-        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%","√","cos"]
+        const operaçõesPermitidas = ["*", "/", "+", "-", "!","%","√","cos","sin","tan"]
 
         if (!operaçõesPermitidas.includes(operacao)) return
 
@@ -155,7 +200,7 @@ class Calculadora {
         const previsaoSemEspacos = previsaoAtual.trim()
         const ultimoCaractere = previsaoAtual.trim().slice(-1)
 
-        if (["*", "/", "+", "-", "!","%","√","cos"].includes(ultimoCaractere)) {
+        if (["*", "/", "+", "-", "!","%","√","cos","sin","tan"].includes(ultimoCaractere)) {
             this.PrevisaoDeOperaçaoTexto.innerText =
                 previsaoSemEspacos.slice(0, -1) + operacao
         } else {
@@ -207,8 +252,83 @@ processoIgualOperacao() {
     let atualTexto = this.atualOperacaoTexto.innerText
     const previsaoTexto = this.PrevisaoDeOperaçaoTexto.innerText.trim()
     const numeroPrevisao = +previsaoTexto.replace("%", "")
-   
 
+
+    // logaritmo natural
+    if(atualTexto.startsWith("ln")) {
+        if(atualTexto === "ln") {
+            return
+        }
+
+        let Logaritmo_natural = +atualTexto.replace("ln", "")
+
+         if(Logaritmo_natural <= 0){
+            this.atualOperacaoTexto.innerText = "Error"
+            return
+        }
+
+        let x = Math.log(Logaritmo_natural)
+
+       
+
+        if(this.PrevisaoDeOperaçaoTexto.innerText === "") {
+            this.PrevisaoDeOperaçaoTexto.innerText = x.toFixed(10)
+            this.atualOperacaoTexto.innerText = ""
+            return
+        }
+        this.atualOperacaoTexto.innerText = x.toFixed(10)
+        const resultado = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+        this.processarOperacao(resultado)
+        return
+    }
+
+
+    // tangente
+    if(atualTexto.startsWith("tan")) {
+        if(atualTexto === "tan") {
+            return
+        }
+
+        let tangente = +atualTexto.replace("tan", "")
+        let x = Math.tan(tangente * Math.PI / 180)
+
+         if((tangente - 90) % 180 === 0){
+            this.atualOperacaoTexto.innerText = "Não definido"
+            return
+        }
+
+        if(this.PrevisaoDeOperaçaoTexto.innerText === "") {
+            this.PrevisaoDeOperaçaoTexto.innerText = x.toFixed(10)
+            this.atualOperacaoTexto.innerText = ""
+            return
+        }
+        this.atualOperacaoTexto.innerText = x.toFixed(10)
+        const resultado = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+        this.processarOperacao(resultado)
+        return
+    }
+
+
+    // Seno
+    if(atualTexto.startsWith("sin")) {
+        if(atualTexto === "sin") {
+            return
+        }
+        let seno = +atualTexto.replace("sin", "")
+        let x = Math.sin(seno * Math.PI / 180)
+
+        if(this.PrevisaoDeOperaçaoTexto.innerText === "") {
+            this.PrevisaoDeOperaçaoTexto.innerText = x.toFixed(10)
+            this.atualOperacaoTexto.innerText = ""
+            return
+        }
+        this.atualOperacaoTexto.innerText = x.toFixed(10)
+        const resultado = this.PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
+        this.processarOperacao(resultado)
+        return
+    }
+   
+    // Cosseno
     if(atualTexto.startsWith("cos")) {
         if(atualTexto === "cos") {
             return
@@ -227,7 +347,7 @@ processoIgualOperacao() {
         return
     }
 
-
+    // PI
     if (atualTexto.startsWith("π")) {
     const numero = atualTexto.replace("π", "")
     const multiplicador = numero === "" ? 1 : Number(numero)
@@ -241,12 +361,18 @@ processoIgualOperacao() {
     atualTexto = this.atualOperacaoTexto.innerText
     }
 
+    // Raiz quadrada
     if(atualTexto.startsWith("√")){
         if(atualTexto === "√"){
             return
         }
         let numeroAtual = +atualTexto.replace("√", "")
         const resultado = Math.sqrt(numeroAtual)
+
+        if(numeroAtual < 0){
+            this.atualOperacaoTexto.innerText = "Error"
+            return
+        }
 
         if(this.PrevisaoDeOperaçaoTexto.innerText === "") {
             this.PrevisaoDeOperaçaoTexto.innerText = resultado
@@ -326,23 +452,34 @@ processoIgualOperacao() {
     operacaoFatorial() {
 
         const atualOperacaoTexto = +this.atualOperacaoTexto.innerText.replace("!", "")
-        if (atualOperacaoTexto > 170) {
-            this.PrevisaoDeOperaçaoTexto.innerText = "Infinity"
-            this.atualOperacaoTexto.innerText = ""
-            return
-}
-        let n = 1
 
-        for(let i = 1; i <= atualOperacaoTexto; i++) {
-            n *= i
-        }
-
-        this.PrevisaoDeOperaçaoTexto.innerText = n
+    if (atualOperacaoTexto > 170) {
+        this.PrevisaoDeOperaçaoTexto.innerText = "Infinity"
         this.atualOperacaoTexto.innerText = ""
+        return
     }
 
+    // Verificar se o número é negativo
+    const negativo = atualOperacaoTexto < 0
+
+    let n = 1
+
+    // Calcular usando o valor absoluto
+    for(let i = 1; i <= Math.abs(atualOperacaoTexto); i++) {
+        n *= i
+    }
+
+    // Recuperar o sinal negativo
+    if(negativo) {
+        n *= -1
+    }
+
+    this.PrevisaoDeOperaçaoTexto.innerText = n
+    this.atualOperacaoTexto.innerText = ""
+}
+
    adicionarSimbolo(simbolo) {
-    const simbolosPermitidos = ["%", "!","cos"]
+    const simbolosPermitidos = ["%", "!","cos","sin","tan"]
 
     if (!simbolosPermitidos.includes(simbolo)) {
         return
@@ -412,6 +549,15 @@ operacoesCientificas.forEach((btn) => {
                 break;
             case "cos":
                 calc_cientifica.atualOperacaoTexto.innerText = "cos"
+                break;
+            case "sin":
+                calc_cientifica.atualOperacaoTexto.innerText = "sin"
+                break;
+            case "tan":
+                calc_cientifica.atualOperacaoTexto.innerText = "tan"
+                break;
+            case "ln":
+                calc_cientifica.atualOperacaoTexto.innerText = "ln"
                 break;
         }
     })
