@@ -28,11 +28,27 @@ class Calculadora {
             this.processoIgualOperacao()
             return
         }
+
+        // Impedir operadores consecutivos após operações científicas
+        if (["cos-", "sin-", "tan-", "ln-", "√-"].includes(this.atualOperacaoTexto.innerText) && ["+", "-", "*", "/"].includes(operacao)) {
+            return
+        }
         // bota o sinal de menos na frente do numero
-        if(this.atualOperacaoTexto.innerText === "" & operacao === "-") {
+        if (
+            this.atualOperacaoTexto.innerText === "" &&
+            this.PrevisaoDeOperaçaoTexto.innerText === "" &&
+            operacao === "-"
+        ) {
             this.atualOperacaoTexto.innerText = "-"
             return
-            
+        }
+
+        // Impedir outro operador enquanto só existe o sinal negativo
+        if (
+            this.atualOperacaoTexto.innerText === "-" &&
+            ["+", "-", "*", "/","x!","%"].includes(operacao)
+        ) {
+            return
         }
         // deixar o sinal de "-" na frente dessas operacoes
         if(operacao === "-" && ["cos", "sin", "tan", "√", "ln"].includes(this.atualOperacaoTexto.innerText)) {
@@ -71,11 +87,18 @@ class Calculadora {
         //deixa trocar opercaoes Pi
         if (this.atualOperacaoTexto.innerText.endsWith("π")) {
             const textoAtual = this.atualOperacaoTexto.innerText
-            const numero = textoAtual.replace("π", "")
-            const multiplicador = numero === "" ? 1 : Number(numero)
 
-            this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
-        }
+            const quantidade = textoAtual.split("π").length - 1
+
+            const numero = textoAtual.replaceAll("π", "")
+            let multiplicador = numero === "" ? 1 : Number(numero)
+
+            for (let i = 1; i < quantidade; i++) {
+                multiplicador *= Math.PI
+            }
+
+    this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
+}
         //deixa trocar opercaoes Cosseno
         if(this.atualOperacaoTexto.innerText === "cos" && ["+", "-", "*", "/"].includes(operacao)) {
                 return
@@ -226,6 +249,10 @@ class Calculadora {
     processoIgualOperacao() {
         const operacao = PrevisaoDeOperaçaoTexto.innerText.split(" ")[1]
 
+       if (this.atualOperacaoTexto.innerText === "" && ["+", "-", "*", "/"].some(operador => this.PrevisaoDeOperaçaoTexto.innerText.trim().endsWith(operador))) {
+            return
+        }
+
         this.processarOperacao(operacao)
     }
 
@@ -241,7 +268,7 @@ class Cientifica extends Calculadora {
     }
 
  porcentagemOperacao() {
-        if (this.atualOperacaoTexto.innerText === "" || this.atualOperacaoTexto.innerText.includes("%")) {
+        if (this.atualOperacaoTexto.innerText === "" || this.atualOperacaoTexto.innerText.includes("%") || this.atualOperacaoTexto.innerText === "-") {
             return
         }
         this.atualOperacaoTexto.innerText += "%"
@@ -253,6 +280,9 @@ processoIgualOperacao() {
     const previsaoTexto = this.PrevisaoDeOperaçaoTexto.innerText.trim()
     const numeroPrevisao = +previsaoTexto.replace("%", "")
 
+    if (["cos-", "sin-", "tan-", "ln-", "√-"].includes(atualTexto)) {
+    return
+}
 
     // logaritmo natural
     if(atualTexto.startsWith("ln")) {
@@ -348,18 +378,20 @@ processoIgualOperacao() {
     }
 
     // PI
-    if (atualTexto.startsWith("π")) {
-    const numero = atualTexto.replace("π", "")
-    const multiplicador = numero === "" ? 1 : Number(numero)
+    if (atualTexto.includes("π")) {
+    const quantidade = atualTexto.split("π").length - 1
 
-    this.atualOperacaoTexto.innerText = String(multiplicador * Math.PI)
-    atualTexto = this.atualOperacaoTexto.innerText
+    const numero = atualTexto.replaceAll("π", "")
+    let resultado = numero === "" ? 1 : Number(numero)
+
+    for (let i = 0; i < quantidade; i++) {
+        resultado *= Math.PI
     }
 
-    if (atualTexto === "π") {
-    this.atualOperacaoTexto.innerText = Math.PI
+    this.atualOperacaoTexto.innerText = String(resultado)
     atualTexto = this.atualOperacaoTexto.innerText
-    }
+}
+
 
     // Raiz quadrada
     if(atualTexto.startsWith("√")){
